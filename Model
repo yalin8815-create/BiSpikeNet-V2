@@ -1,0 +1,40 @@
+    def forward_time(self, x, mem, spike, meta_net=None):
+        residual = x
+        out = self.binary_activation(x)
+
+        out1 = self.bn1(self.binary_conv1(out, meta_net))
+        out2 = self.bn2(self.binary_conv2(out1, meta_net))
+        out3 = self.bn3(self.binary_conv3(out2, meta_net))
+
+        b, c, h, w = out1.shape
+        stacked = torch.stack([out1, out2, out3], dim=1)
+        route_weights = F.softmax(self.rf_router(out1 + out2 + out3).view(b, 3, c, 1, 1), dim=1)
+        out_sum = (stacked * route_weights).sum(dim=1)
+
+        if self.attention is not None:
+            out_sum = self.attention(out_sum, spk_history=spike)
+
+        if mem is None or spike is None or mem.shape != out_sum.shape:
+            mem = torch.zeros_like(out_sum)
+            spike = torch.zeros_like(out_sum)
+
+        mem, spk = self.lif(out_sum, mem, spike)
+
+        if self.downsample is not None:
+            residual = self.downsample(x)
+        elif residual.shape != spk.shape:
+            if residual.shape[2:] != spk.shape[2:]:
+                residual = F.adaptive_avg_pool2d(residual, spk.shape[2:])
+            if residual.shape[1] != spk.shape[1]:
+                residual = F.pad(residual, (0, 0, 0, 0, 0, spk.shape[1] - residual.shape[1]))
+
+        spk_out = (spk * self.spk_scale) * self.res_gate(spk) if (
+                    self.use_res_gate and hasattr(self, 'res_gate')) else spk * self.spk_scale
+        out = self.nonlinear(residual + spk_out)
+
+        if self.freeze_bn:
+            self.bn1.eval()
+            self.bn2.eval()
+            self.bn3.eval()
+
+        return out, mem, spk

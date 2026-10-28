@@ -38,8 +38,10 @@ To prevent cross-set data leakage from continuous field bursts and evaluate robu
 
 <div align="center">
   <!-- [Paste Paper Fig. 3 (PCA Distribution) and Fig. 4 (Env 0-4 Samples) here] -->
-  <img src="assets/fig3_pca_distribution.png" width="46%" alt="PCA Distribution"/>
-  <img src="assets/fig4_env_samples.png" width="48%" alt="Environment Samples"/>
+  <img src="<img width="601" height="481" alt="image" src="https://github.com/user-attachments/assets/79c2424a-b65f-47ad-b7ab-f20bf7d58d46" />
+" width="46%" alt="PCA Distribution"/>
+  <img src="<img width="447" height="323" alt="image" src="https://github.com/user-attachments/assets/87b705fd-ea8a-40e1-bcdf-8e2edbb4dae0" />
+" width="48%" alt="Environment Samples"/>
   <br>
   <em><b>Fig. 1.</b> Left: PCA manifold projection of the 5 physical background domains. Right: Representative field samples decoupled across Env 0 – Env 4.</em>
 </div>
